@@ -1,0 +1,48 @@
+# class Version:
+#     def __init__(self, version):
+#         self.original = version
+#         self.version = version.split("+")[0]
+
+#         if '-' in version:
+#             base, prerelease = version.split('-', 1)
+#             prerelease_vbersiuon = prerelease.split('.')
+#         else:
+#             base, prerelease_version = version, []
+
+
+#         base_version_split = base.split('.') # [1, 0, 1]
+        
+#         self.major = int(base_version_split[0])
+#         self.minor = int(base_version_split[1])
+#         self.patch = int(base_version_split[2])
+        
+        
+
+#         self.info = {
+#             "major": self.major,
+#             "minor": self.minor,
+#             "patch": self.patch,
+#         }
+   # def __eq__(self, other):
+    #     return self.value == other.value    
+    
+
+
+# def main():
+#     to_test = [
+#         ("1.0.0", "2.0.0"),
+#         ("1.0.0", "1.42.0"),
+#         ("1.2.0", "1.2.42"),
+#         ("1.1.0-alpha", "1.2.0-alpha.1"),
+#         ("1.0.1b", "1.0.10-alpha.beta"),
+#         ("1.0.0-rc.1", "1.0.0"),
+#     ]
+
+#     for left, right in to_test:
+#         assert Version(left) < Version(right), "le failed"
+#         assert Version(right) > Version(left), "ge failed"
+#         assert Version(right) != Version(left), "neq failed"
+
+
+# if __name__ == "__main__":
+#     main()
