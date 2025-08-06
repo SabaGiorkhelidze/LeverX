@@ -1,57 +1,3 @@
-# class Version:
-#     def __init__(self, version):
-#         self.original = version
-#         self.version = version.split("+")[0]
-
-#         if '-' in version:
-#             base, prerelease = version.split('-', 1)
-#             prerelease_version = prerelease.split('.')
-#         else:
-#             base, prerelease_version = version, []
-
-#         base_version_split = base.split('.')  # [1, 0, 1]
-
-#         self.major = int(base_version_split[0])
-#         self.minor = int(base_version_split[1])
-#         self.patch = int(base_version_split[2])
-#         self.prerelease = prerelease_version[0] if len(prerelease_version) > 0 else None 
-        
-        
-#         # ['alpha', 'beta', '2', '3', '4', 'beta', 'alpha'] [alpha, 1] [beta, 1, 4] 
-#         for i in range(len(prerelease_version)):
-#             if self.prerelease[i].isdigit():
-#                 self.prerelease[i] = int(self.prerelease[i])
-                
-#         self.info = {
-#             "major": self.major,
-#             "minor": self.minor,
-#             "patch": self.patch,
-#             "prerelease": self.prerelease
-            
-#         }
-#     def match_version(self):
-#         pass
-
-
-
-# versions = [
-#     "1.2.0-alpha.1",
-#     "2.0.5",
-#     "3.1.4-beta",
-#     "0.1.0-rc.7+build567",
-#     "4.2.1",
-#     "1.0.0-alpha"
-# ]
-
-# for v in versions:
-#     try:
-#         ver = Version(v)
-#         print(f"{v} → {ver.info}")
-#     except Exception as e:
-#         print(f"{v} → ERROR: {e}")
-
-
- 
 class Version:
     def __init__(self, version):
         self.original = version
@@ -94,24 +40,27 @@ class Version:
             return self.patch > other.patch
         
         
-        if not self.prerelease and other.prelease:
+        if not self.prerelease and other.prerelease:
             return True
         if not self.prerelease and not other.prerelease:
             return False
-        if self.prerelease and not other.prelease:
+        if self.prerelease and not other.prerelease:
             return False
         
         
         for s, o in zip(self.prerelease, other.prerelease):
-            pass
+            if s == o:
+                continue
+            if (isinstance(s, int) and isinstance(o, int)) or (isinstance(s, str) and isinstance(o, str)):
+                return s > o
+            return isinstance(s, int) 
         
-        
-        
+        return len(self.prerelease) > len(other.prerelease)
         
         
     
-    def __lt__(self, value):
-        pass
+    def __lt__(self, other):
+        return not (self > other or self == other)
     
 
 
@@ -124,9 +73,9 @@ def test_comparisons():
         ("1.2.3", "1.2.3"),           # v1 == v2
         ("1.2.3", "1.2.4"),           # v1 < v2
         ("1.0.0-alpha", "1.0.0"),     # v1 < v2
-        # ("1.0.0-beta.2", "1.0.0-beta.1"),  # v1 > v2
-        # ("1.0.0-alpha.1", "1.0.0-alpha.beta"),  # v1 < v2
-        # ("1.0.0-alpha", "1.0.0-alpha"),        # v1 == v2
+        ("1.0.0-beta.2", "1.0.0-beta.1"),  # v1 > v2
+        ("1.0.0-alpha.1", "1.0.0-alpha.beta"),  # v1 < v2
+        ("1.0.0-alpha", "1.0.0-alpha"),        # v1 == v2
     ]
 
     for left, right in test_cases:
