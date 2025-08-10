@@ -1,0 +1,10 @@
+load data from file
+
+combile data into list of room -> each room includes the students assigned to it
+
+export it as json
+
+accept input params via cmd
+
+
+room id == student room
