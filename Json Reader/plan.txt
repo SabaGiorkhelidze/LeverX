@@ -8,3 +8,10 @@ accept input params via cmd
 
 
 room id == student room
+
+
+{
+    id: int #room_id
+    name: str #room_name
+    student: list[stundets] #student_obj
+}
