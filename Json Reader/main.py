@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as minidom
+import argparse
 
 # dataclasses
 @dataclass(frozen=True)
@@ -38,7 +39,7 @@ class JsonLoader(DataLoader):
             raise ValueError(f"Invalid JSON in {path}: {e}") from e
         return data            
 
-class XmlDataLoader(DataLoader):
+class XmlLoader(DataLoader):
     def load(self, path: Path) -> list[dict]:
         try:
             tree = ET.parse(path)
@@ -118,20 +119,37 @@ class XmlExporter(Exporter):
         except IOError as e:
             raise ValueError(f"Failed to write XML to {output_path}: {e}") from e  
 
-json_folder = Path(__file__).parent / "jsons"
-rooms_json_path = json_folder / "rooms.json"
-students_json_path = json_folder / "students.json"
 
-json_loader = JsonLoader()
-rooms_data_json = json_loader.load(rooms_json_path)
-students_data_json = json_loader.load(students_json_path)
+def main():
+    parser = argparse.ArgumentParser(description="select arguments which type of file generation you want")
+    
+    parser.add_argument("--file-type", type=str, choices=['json', 'xml'], default="json")
+    parser.add_argument("--student-path", type=str, default=Path(__file__).parent / "jsons" / "students.json")
+    parser.add_argument("--rooms-path", type=str, default=Path(__file__).parent / "jsons" / "rooms.json")
+    parser.add_argument("--output-format", choices=['json', 'xml'], default="json")
+    parser.add_argument('--output-destination-path', type=str, default=str(Path(__file__).parent / "jsons" / "results"))
+    
+    args = parser.parse_args()
+    
+    students_path = Path(args.student_path)
+    rooms_path = Path(args.rooms_path)
+    output_path = Path(args.output_destination_path).with_suffix(f".{args.output_format}")
+    
+    loader = JsonLoader() if args.file_type == "json" else XmlLoader()
+    
+    rooms_data = loader.load(rooms_path)
+    students_data = loader.load(students_path)
+    
+    result = RoomAssignmentService().assign(rooms_data, students_data)
+    
+    exporter = JsonExporter() if args.output_format == 'json' else XmlExporter()
+    
+    try:
+        exporter.export(result, output_path)
+        print(f"Results successfully exported to {output_path}")
+    except ValueError as e:
+        print(f"Error exporting results: {e}")
 
-room_assignment = RoomAssignmentService()
-result_json = room_assignment.assign(rooms_data_json, students_data_json)
 
-json_exporter = JsonExporter()
-json_exporter.export(result_json)
-
-xml_exporter = XmlExporter()
-xml_exporter.export(result_json)
-
+if __name__ == "__main__":
+    main()

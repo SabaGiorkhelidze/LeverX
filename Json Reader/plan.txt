@@ -15,3 +15,5 @@ room id == student room
     name: str #room_name
     student: list[stundets] #student_obj
 }
+
+--input-format, --students-file-path, --rooms-file-path, --output-format, --output-destination-path
