@@ -1,8 +1,6 @@
 import json
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
-from itertools import product
 
 @dataclass(frozen=True)
 class Room:
@@ -31,24 +29,15 @@ class JsonLoader:
         return data            
 
 
-# not needed 
-# class JsonParser:
-#     def parse(self, data, instance_constructor):
-#         try:
-#             parsed_obj = [instance_constructor(**info) for info in data]
-#         except TypeError as e:
-#             raise ValueError(f"not match {instance_constructor.__name__} fields: {e}") from e
-#         return parsed_obj
-
 class RoomAssignmentService:
     def assign(self, rooms_data: list[Room], students_data: list[Student]) -> list[Result]:
         result: list[Result] = []
 
         for room in rooms_data:
-            student_match = [s for s in students_data if room.id == s.room]
+            student_match = [{"id": s["id"], "name": s["name"]} for s in students_data if room['id'] == s["room"]]
             result.append({
-                "id": room.id,
-                "name": room.name,
+                "id": room["id"],
+                "name": room["name"],
                 "students": student_match
             })
         return result
@@ -57,19 +46,24 @@ class RoomAssignmentService:
 
 
 class JsonEXporter:
-    def export(self, rooms):
-        pass
+    def export(self, data, output_path: Path = None):
+        if output_path is None:
+            output_path = Path(__file__).parent / "jsons" / "results.json"
+
+        try:
+            with output_path.open('w', encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+        except IOError as e:
+            raise ValueError(f"Failed to write JSON to {output_path}: {e}") from e
 
 
-
-# json_path = Path(__file__).parent / "jsons" / "rooms.json"
 
 json_folder = Path(__file__).parent / "jsons"
 rooms_path = json_folder / "rooms.json"
 students_path = json_folder / "students.json"
 
 loader = JsonLoader()
-# parser = JsonParser()
+
 
 rooms_data = loader.load(rooms_path)
 students_data = loader.load(students_path)
@@ -77,23 +71,8 @@ students_data = loader.load(students_path)
 
 room_assignment = RoomAssignmentService()
 
-test = room_assignment.assign(rooms_data, students_data)
+result = room_assignment.assign(rooms_data, students_data)
 
-# print("Rooms JSON:")
-# print(rooms_data)
+exporter = JsonEXporter()
+exporter.export(result)
 
-# print("\nStudents JSON:")
-# print(students_data)
-
-print(test[1:10])
-
-# rooms = parser.parse(rooms_data, Room)
-# students = parser.parse(students_data, Student)
-
-# print("\nRooms (dataclasses):")
-# for r in rooms:
-#     print(r)
-
-# print("\nStudents (dataclasses):")
-# for s in students:
-#     print(s)
