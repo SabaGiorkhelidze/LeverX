@@ -15,6 +15,16 @@ def parse_args():
     
     return parser.parse_args()
 
+
+def validate_inputs(students_path: Path, rooms_path: Path, input_format: str) -> None:
+    if not students_path.is_file() or not rooms_path.is_file():
+        raise ValueError(f" file not found: {students_path}, {rooms_path}")
+    
+    expected_format = f".{input_format}"
+    if students_path.suffix != expected_format or rooms_path.suffix != expected_format:
+        raise ValueError(f"Input must have {expected_format} extension for --input-format {input_format}")
+
+
 def run():
     args = parse_args()
     
@@ -22,9 +32,7 @@ def run():
     rooms_path = Path(args.rooms_path)
     output_path = Path(args.output_destination_path).with_suffix(f".{args.output_format}")
     
-    if not students_path.is_file() or not rooms_path.is_file():
-        print(f"Error: Input file not found: {students_path}, {rooms_path}")
-        return
+    validate_inputs(students_path, rooms_path, args.input_format)
         
         
     loader = LoaderFactory.get_loader(args.input_format)
