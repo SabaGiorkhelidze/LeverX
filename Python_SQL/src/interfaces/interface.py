@@ -12,7 +12,7 @@ commit
 
 '''
 
-class DatabaseConnectorInetrface(ABC):
+class DatabaseConnectorInterface(ABC):
     @abstractmethod
     def cursor(self):
         pass

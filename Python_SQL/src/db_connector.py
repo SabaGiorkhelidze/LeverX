@@ -1,8 +1,8 @@
-from interface import DatabaseConnectorInetrface
+from src.interfaces.interface import DatabaseConnectorInterface
 import mysql.connector
 from mysql.connector import Error
 
-class DatabaseConnector(DatabaseConnectorInetrface):
+class DatabaseConnector(DatabaseConnectorInterface):
     def __init__(self, config):
         self.config = config
         self.connection = None
@@ -18,7 +18,7 @@ class DatabaseConnector(DatabaseConnectorInetrface):
         
         
     def cursor(self):
-        return self.conn.cursor()
+        return self.connection.cursor()
     
     def commit(self):
         self.connection.commit
@@ -26,3 +26,4 @@ class DatabaseConnector(DatabaseConnectorInetrface):
     def close_connection(self):
         if self.connection:
             self.connection.close()
+            self.connection = None

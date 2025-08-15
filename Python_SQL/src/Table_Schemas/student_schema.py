@@ -1,5 +1,5 @@
 from mysql.connector import Error
-from interface import DatabaseConnectorInetrface
+from src.interfaces.interface import DatabaseConnectorInterface
 
 class StudentSchemaCreator:
     @staticmethod
