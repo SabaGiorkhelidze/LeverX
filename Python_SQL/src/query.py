@@ -7,7 +7,7 @@ class QueryExecutor(QueriExecutorInterface):
         self.db = db_connector
           
     def _execute_query(self, query):
-        cursor = self.db.get_cursor()
+        cursor = self.db.cursor()
         try:
             cursor.execute(query)
             return cursor.fetchall()
@@ -18,7 +18,7 @@ class QueryExecutor(QueriExecutorInterface):
             cursor.close()
             
             
-    def get_rooms_with_student_count(self):
+    def get_room_with_student_count(self):
         query = """
             SELECT r.name, COUNT(s.id) as student_count
             FROM rooms r

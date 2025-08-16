@@ -21,7 +21,7 @@ class DatabaseConnector(DatabaseConnectorInterface):
         return self.connection.cursor()
     
     def commit(self):
-        self.connection.commit
+        self.connection.commit()
         
     def close_connection(self):
         if self.connection:

@@ -33,7 +33,7 @@ def run_app():
     executor = QueryExecutor(db)
     
     print("Rooms with student count:")
-    print(executor.get_rooms_with_student_count())
+    print(executor.get_room_with_student_count())
     
     print("\nTop 5 rooms with smallest average student age:")
     print(executor.get_top_5_rooms_smallest_avg_age())

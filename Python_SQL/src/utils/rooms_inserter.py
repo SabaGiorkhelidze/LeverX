@@ -2,7 +2,7 @@ from mysql.connector import Error
 
 class RoomInserter:
     @staticmethod
-    def insert_rooms(self, rooms_data, db_connector):
+    def insert_rooms(rooms_data, db_connector):
         cursor = db_connector.cursor()
         
         try:
@@ -11,7 +11,7 @@ class RoomInserter:
                     "INSERT IGNORE INTO rooms (id, name) VALUES (%s, %s)",
                     (room["id"], room["name"])
                 )
-                db_connector.commit()
+            db_connector.commit()
         except Error as e:
             print(f"Error inserting rooms into db {e}")
         finally:

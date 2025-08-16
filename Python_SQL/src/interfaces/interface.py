@@ -79,6 +79,10 @@ get_rooms_with_mixed_sexes
 class QueriExecutorInterface(ABC):
     
     @abstractmethod
+    def _execute_query(self):
+        pass
+    
+    @abstractmethod
     def get_room_with_student_count(self):
         pass
     
