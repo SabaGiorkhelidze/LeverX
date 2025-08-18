@@ -1,0 +1,502 @@
+openapi: 3.0.3
+info:
+  title: Students–Rooms API
+  version: 1.0.0
+  description: |
+    CRUD for students and rooms, list students in a room, and move a student to another room.
+servers:
+  - url: http://localhost:8080
+
+tags:
+  - name: Students
+  - name: Rooms
+  - name: Operations
+
+paths:
+  /students:
+    get:
+      tags: [Students]
+      summary: List students
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1, default: 1 }
+        - in: query
+          name: page_size
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+        - in: query
+          name: room
+          schema: { type: integer, minimum: 0 }
+        
+      responses:
+        '200':
+          description: Paginated list of students
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStudents'
+              examples:
+                sample:
+                  value:
+                    data:
+                      - id: 1
+                        name: "Peggy Ryan"
+                        birthday: "2011-08-22T00:00:00.000000"
+                        sex: "F"
+                        room: 473
+                      - id: 2
+                        name: "Christian Bush"
+                        birthday: "2004-01-07T00:00:00.000000"
+                        sex: "M"
+                        room: 743
+                    meta:
+                      page: 1
+                      page_size: 20
+                      total_items: 2
+                      total_pages: 1
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+    post:
+      tags: [Students]
+      summary: Create a student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StudentCreate' }
+            examples:
+              sample:
+                value:
+                  name: "Alice Johnson"
+                  birthday: "2006-12-11T00:00:00.000000"
+                  sex: "F"
+                  room: 129
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Student' }
+        '404': { $ref: '#/components/responses/RoomNotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /students/{studentId}:
+    parameters:
+      - in: path
+        name: studentId
+        required: true
+        schema: { type: integer, minimum: 0 }
+    get:
+      tags: [Students]
+      summary: Get student by id
+      responses:
+        '200':
+          description: Student
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Student' }
+        '404': { $ref: '#/components/responses/StudentNotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [Students]
+      summary: Replace a student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StudentPut' }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Student' }
+        '404': { $ref: '#/components/responses/StudentNotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    patch:
+      tags: [Students]
+      summary: Partially update a student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StudentUpdate' }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Student' }
+        '404': { $ref: '#/components/responses/StudentNotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [Students]
+      summary: Delete a student
+      responses:
+        '204': { description: Deleted }
+        '404': { $ref: '#/components/responses/StudentNotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /students/{studentId}/move:
+    post:
+      tags: [Operations]
+      summary: Move a student to a different room
+      parameters:
+        - in: path
+          name: studentId
+          required: true
+          schema: { type: integer, minimum: 0 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [newroom]
+              properties:
+                newroom:
+                  type: integer
+                  minimum: 0
+            examples:
+              sample:
+                value: { newroom: 355 }
+      responses:
+        '200':
+          description: Student after move
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Student' }
+        '404': { $ref: '#/components/responses/NotFoundAny' }
+        '409': { $ref: '#/components/responses/RoomCapacityExceeded' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /rooms:
+    get:
+      tags: [Rooms]
+      summary: List rooms
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1, default: 1 }
+        - in: query
+          name: page_size
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+        - in: query
+          name: name
+          schema: { type: string }
+      responses:
+        '200':
+          description: Paginated list of rooms
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRooms'
+              examples:
+                sample:
+                  value:
+                    data:
+                      - id: 0
+                        name: "Room #0"
+                        capacity: 3
+                      - id: 1
+                        name: "Room #1"
+                        capacity: 2
+                    meta:
+                      page: 1
+                      page_size: 20
+                      total_items: 2
+                      total_pages: 1
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+    post:
+      tags: [Rooms]
+      summary: Create a room
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RoomCreate' }
+            examples:
+              sample:
+                value:
+                  name: "Room #12"
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Room' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /rooms/{room}:
+    parameters:
+      - in: path
+        name: room
+        required: true
+        schema: { type: integer, minimum: 0 }
+    get:
+      tags: [Rooms]
+      summary: Get room by id
+      responses:
+        '200':
+          description: Room
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Room' }
+        '404': { $ref: '#/components/responses/RoomNotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [Rooms]
+      summary: Replace a room
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RoomPut' }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Room' }
+        '404': { $ref: '#/components/responses/RoomNotFound' }
+        
+        '500': { $ref: '#/components/responses/ServerError' }
+    patch:
+      tags: [Rooms]
+      summary: Partially update a room
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RoomUpdate' }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Room' }
+        '404': { $ref: '#/components/responses/RoomNotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [Rooms]
+      summary: Delete a room
+      responses:
+        '204': { description: Deleted }
+        '404': { $ref: '#/components/responses/RoomNotFound' }
+        '409':
+          description: Cannot delete room with assigned students
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              examples:
+                conflict:
+                  value:
+                    code: room_not_empty
+                    message: "Room has assigned students"
+                    details: { currentOccupancy: 2 }
+                    
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /rooms/{room}/students:
+    get:
+      tags: [Rooms]
+      summary: List students in a specific room
+      parameters:
+        - in: path
+          name: room
+          required: true
+          schema: { type: integer, minimum: 0 }
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1, default: 1 }
+        - in: query
+          name: page_size
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+        - in: query
+          name: name
+          schema: { type: string }
+      responses:
+        '200':
+          description: Students in room
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedStudents' }
+        '404': { $ref: '#/components/responses/RoomNotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+components:
+  schemas:
+    Student:
+      type: object
+      required: [id, name, room]
+      properties:
+        id: { type: integer, minimum: 0 }
+        name: { type: string, minLength: 1 }
+        birthday: { type: string, format: date-time, nullable: true }
+        sex: { type: string, enum: [M, F], nullable: true }
+        room: { type: integer, minimum: 0 }
+
+    StudentCreate:
+      type: object
+      required: [name, room]
+      properties:
+        name: { type: string, minLength: 1 }
+        birthday: { type: string, format: date-time, nullable: true }
+        sex: { type: string, enum: [M, F], nullable: true }
+        room: { type: integer, minimum: 0 }
+
+    StudentPut:
+      allOf:
+        - $ref: '#/components/schemas/StudentCreate'
+
+    StudentUpdate:
+      type: object
+      additionalProperties: false
+      properties:
+        name: { type: string, minLength: 1 }
+        birthday: { type: string, format: date-time, nullable: true }
+        sex: { type: string, enum: [M, F], nullable: true }
+        room: { type: integer, minimum: 0 }
+
+    Room:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: integer, minimum: 0 }
+        name: { type: string, minLength: 1 }
+        capacity:
+          type: integer
+          minimum: 0
+          description: Optional capacity. If absent, treated as unlimited.
+
+    RoomCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1 }
+        capacity: { type: integer, minimum: 0, nullable: true }
+
+    RoomPut:
+      allOf:
+        - $ref: '#/components/schemas/RoomCreate'
+
+    RoomUpdate:
+      type: object
+      additionalProperties: false
+      properties:
+        name: { type: string, minLength: 1 }
+        capacity: { type: integer, minimum: 0, nullable: true }
+
+    PaginationMeta:
+      type: object
+      required: [page, page_size, total_items, total_pages]
+      properties:
+        page: { type: integer, minimum: 1 }
+        page_size: { type: integer, minimum: 1 }
+        total_items: { type: integer, minimum: 0 }
+        total_pages: { type: integer, minimum: 0 }
+
+    PaginatedStudents:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Student' }
+        meta: { $ref: '#/components/schemas/PaginationMeta' }
+
+    PaginatedRooms:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Room' }
+        meta: { $ref: '#/components/schemas/PaginationMeta' }
+
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code: { type: string }
+        message: { type: string }
+        details: {}
+        
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          examples:
+            bad:
+              value:
+                code: bad_request
+                message: "Invalid query parameter"
+                
+
+    StudentNotFound:
+      description: Student not found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          examples:
+            nf:
+              value:
+                code: not_found
+                message: "Student 999 not found"
+                
+
+    RoomNotFound:
+      description: Room not found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          examples:
+            nf:
+              value:
+                code: not_found
+                message: "Room 77 not found"
+                
+
+    NotFoundAny:
+      description: Student or room not found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          examples:
+            nf:
+              value:
+                code: not_found
+                message: "Student or room not found"
+                
+
+    RoomCapacityExceeded:
+      description: Target room has no free capacity
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          examples:
+            full:
+              value:
+                code: room_capacity_exceeded
+                message: "Room is at capacity"
+                details: { capacity: 3, currentOccupancy: 3 }
+              
+
+    ServerError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          examples:
+            err:
+              value:
+                code: server_error
+                message: "Unexpected error occurred"
+                traceId: "trace-007"
