@@ -1,10 +1,9 @@
 from mysql.connector import Error
-from src.interfaces.interface import DataInserterInterface, DatabaseConnectorInterface
 from src.utils.rooms_inserter import RoomInserter
 from src.utils.students_inserter import StudentInserter
 
-class DataInserter(DataInserterInterface):
-    def __init__(self, db_connector: DatabaseConnectorInterface):
+class DataInserter:
+    def __init__(self, db_connector):
         self.db = db_connector
         
     def insert_rooms(self,  rooms_data):

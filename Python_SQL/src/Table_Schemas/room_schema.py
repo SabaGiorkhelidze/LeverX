@@ -1,5 +1,5 @@
 from mysql.connector import Error
-from src.interfaces.interface import DatabaseConnectorInterface
+
 
 
 class RoomSchemaCreator:
@@ -9,7 +9,8 @@ class RoomSchemaCreator:
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS rooms (
                     id INT PRIMARY KEY,
-                    name VARCHAR(255) NOT NULL 
+                    name VARCHAR(255) NOT NULL, 
+                    INDEX idx_room_id (id)
                 )
                 """)
         except Error as e:

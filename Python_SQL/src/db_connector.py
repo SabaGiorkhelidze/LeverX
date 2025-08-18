@@ -1,8 +1,7 @@
-from src.interfaces.interface import DatabaseConnectorInterface
 import mysql.connector
 from mysql.connector import Error
 
-class DatabaseConnector(DatabaseConnectorInterface):
+class DatabaseConnector:
     def __init__(self, config):
         self.config = config
         self.connection = None

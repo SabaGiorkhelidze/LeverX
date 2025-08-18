@@ -1,9 +1,8 @@
-from src.interfaces.interface import QueriExecutorInterface, DatabaseConnectorInterface
 from mysql.connector import Error
 
 
-class QueryExecutor(QueriExecutorInterface):
-    def __init__(self, db_connector: DatabaseConnectorInterface):
+class QueryExecutor:
+    def __init__(self, db_connector):
         self.db = db_connector
           
     def _execute_query(self, query):

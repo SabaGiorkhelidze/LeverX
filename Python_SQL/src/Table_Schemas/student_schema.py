@@ -1,5 +1,5 @@
 from mysql.connector import Error
-from src.interfaces.interface import DatabaseConnectorInterface
+
 
 class StudentSchemaCreator:
     @staticmethod
@@ -12,7 +12,9 @@ class StudentSchemaCreator:
                     sex CHAR(1) NOT NULL,
                     birthday DATE NOT NULL,
                     room_id INT,
-                    FOREIGN KEY (room_id) REFERENCES rooms(id)
+                    FOREIGN KEY (room_id) REFERENCES rooms(id),
+                    INDEX idx_room_id (room_id),  
+                    INDEX idx_birthday (birthday)  
                 )
             """)
         except Error as e:

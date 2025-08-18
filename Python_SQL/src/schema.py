@@ -1,11 +1,10 @@
 from mysql.connector import Error
-from src.interfaces.interface import SchemaCreatorInterface, DatabaseConnectorInterface
 from src.Table_Schemas.room_schema import RoomSchemaCreator
 from src.Table_Schemas.student_schema import StudentSchemaCreator
 from src.config import config
 
-class SchemaCreator(SchemaCreatorInterface):
-    def __init__(self, db_connector: DatabaseConnectorInterface):
+class SchemaCreator:
+    def __init__(self, db_connector):
         self.db =  db_connector
     
     
